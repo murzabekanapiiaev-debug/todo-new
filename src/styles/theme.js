@@ -1,10 +1,3 @@
-export const lightTheme = {
-    background:"white",
-    color: "black",
-};
-
-
-export const darkTheme = {
-  background: "black",
-  color: "white",
-};
+// ThemeProvider ушул объекттерди алып, компоненттерге таратат.
+export const lightTheme = { background: "white", color: "black" };
+export const darkTheme = { background: "black", color: "white" };

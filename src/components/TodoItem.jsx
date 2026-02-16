@@ -1,65 +1,73 @@
-import styled from "styled-components";
-import { RiTodoLine } from "react-icons/ri";
-import { MdAutoDelete, MdTipsAndUpdates } from "react-icons/md";
-import { IoBagCheckSharp } from "react-icons/io5";
-import { useState } from "react";
-import { Modal } from "./UI/Modal";
-import { Button } from "./UI/Button";
+import styled from "styled-components"; // Стилдер үчүн
+import { RiTodoLine } from "react-icons/ri"; // Тапшырма иконкасы
+import { MdAutoDelete, MdTipsAndUpdates } from "react-icons/md"; // Өчүрүү жана Жаңылоо иконкалары
+import { IoBagCheckSharp } from "react-icons/io5"; // Аткарылды (Check) иконкасы
+import { useState } from "react"; // Абалды башкаруу үчүн
+import { Modal } from "./UI/Modal"; // Модалдык терезе компоненти
+import { Button } from "./UI/Button"; // Даяр баскыч компоненти
+import { MdEdit } from "react-icons/md";
+import { FaCheckSquare } from "react-icons/fa";
 
+// 'export' — TodoList бул компонентти таба алышы үчүн керек
 export const TodoItem = ({ todo, onToggleTodo, onDeleteTodo, onEditTodo }) => {
+  // todo объектисинен маалыматтарды ажыратып алуу (Destructuring)
   const { id, value, date, isCompleted } = todo;
 
-  const [DeleteIsWisable, setDeleteIsWisable ] =  useState(false);
-  const [isWisableEdit, setIsWisableEdit] = useState(false)
-
-  const hanldeDeleteIsWisableModal = () => setDeleteIsWisable((prev) => !prev);
-  const handleIsEditWisableModal = () => setIsWisableEdit((prev) => !prev);
-
-  const [chengeText, setChengeText] = useState(value);
-  
-
-  const handleChengeText = (e) => setChengeText(e.target.value)
-
-  const handleEdit = (id, chengeText) => {
-    onEditTodo(id, chengeText)
-
-    handleIsEditWisableModal();
-
-  }
-  
+  // Модалдык терезелердин ачык же жабык экенин көзөмөлдөөчү state'тер
+  const [DeleteIsWisable, setDeleteIsWisable] = useState(false); // Өчүрүү модалы
+  const [isWisableEdit, setIsWisableEdit] = useState(false); // Өзгөртүү модалы
+  const [chengeText, setChengeText] = useState(value); // Өзгөртүлө турган жаңы текст
 
   return (
+    // Эгер тапшырма аткарылса (isCompleted: true), анда 'completedTodo' классы кошулат
     <StyledTodoItem className={isCompleted ? "completedTodo" : ""}>
-      <StyledTodoIcon className="todoIcon" />
-      <StyledTodoText>{value}</StyledTodoText>
-      <StyledTodoDate>{date}</StyledTodoDate>
+      <StyledTodoIcon className="todoIcon" /> {/* Сол жактагы иконка */}
+      <StyledTodoText>{value}</StyledTodoText> {/* Тапшырманын тексти */}
+      <StyledTodoDate>{date}</StyledTodoDate> {/* Түзүлгөн күнү */}
+      {/* Өчүрүү баскычы (иконка) */}
       <StyledDeleteIcon
         className="deleteIcon"
-        onClick={hanldeDeleteIsWisableModal}
+        onClick={() => setDeleteIsWisable(true)}
       />
-
+      {/* Өчүрүүнү ырастоочу модалдык терезе */}
       {DeleteIsWisable && (
-        <Modal onClouse={hanldeDeleteIsWisableModal}>
+        <Modal onClouse={() => setDeleteIsWisable(false)}>
           <h2>Are you sure?</h2>
           <Button onClick={() => onDeleteTodo(id)}>Yes</Button>
         </Modal>
       )}
-      <StyledEditIcon className="editIcon" onClick={handleIsEditWisableModal} />
-
+      {/* Өзгөртүү баскычы (иконка) */}
+      <StyledEditIcon
+        className="editIcon"
+        onClick={() => setIsWisableEdit(true)}
+      />
+      {/**/}
+      {/* Өзгөртүү киргизүүчү модалдык терезе */}
       {isWisableEdit && (
-        <Modal onClouse={handleIsEditWisableModal}>
+        <Modal onClouse={() => setIsWisableEdit(false)}>
           <h2>Enter you update todo...</h2>
-
-          <input type="text" value={chengeText} onChange={handleChengeText} />
-
-          <Button onClick={() => handleEdit(id, chengeText)}>; Edit</Button>
+          <input
+            type="text"
+            value={chengeText}
+            onChange={(e) => setChengeText(e.target.value)}
+          />
+          <Button
+            onClick={() => {
+              onEditTodo(id, chengeText); // Жаңы текстти сактоо
+              setIsWisableEdit(false); // Модалды жабуу
+            }}
+          >
+            Edit
+          </Button>
         </Modal>
       )}
+      {/* Аткарылды деп белгилөө баскычы (иконка) */}
       <StyledCheckIcon className="checkIcon" onClick={() => onToggleTodo(id)} />
     </StyledTodoItem>
   );
 };
 
+// --- СТИЛДЕР БӨЛҮМҮ (Styled Components) ---
 
 const StyledTodoItem = styled.div`
   display: flex;
@@ -72,16 +80,12 @@ const StyledTodoItem = styled.div`
   color: #112d49;
   background-color: #fbfef9;
 
+  // Аткарылган тапшырмалар үчүн өзгөчө стиль
   &.completedTodo {
-    background-color: unset;
-    border-color: gray;
-    color: gray;
-  }
-
-  &.completedTodo .todoIcon,
-  &.completedTodo .checkIcon,
-  &.completedTodo .deleteIcon {
-    color: gray;
+    background-color: transparent; // Фонду өчүрүү
+    border-color: gray; // Рамканы боз кылуу
+    color: gray; // Текстти боз кылуу
+    text-decoration: line-through; // Тексттин ортосун чийүү (кошумча сунуш)
   }
 `;
 
@@ -95,6 +99,7 @@ const StyledTodoDate = styled.p`
   color: gray;
 `;
 
+// Иконкаларды стилдөө
 const StyledTodoIcon = styled(RiTodoLine)`
   font-size: 30px;
   margin-right: 10px;
@@ -105,28 +110,25 @@ const StyledDeleteIcon = styled(MdAutoDelete)`
   cursor: pointer;
   padding: 0 7px;
   font-size: 45px;
-
   &:hover {
     color: red;
-  }
+  } // Чычканды алып барганда кызарат
 `;
 
-const StyledEditIcon = styled(MdTipsAndUpdates)`
+const StyledEditIcon = styled(MdEdit)`
   cursor: pointer;
   padding: 0 7px;
   font-size: 45px;
-
   &:hover {
     color: blue;
-  }
+  } // Чычканды алып барганда көгөрөт
 `;
 
-const StyledCheckIcon = styled(IoBagCheckSharp)`
+const StyledCheckIcon = styled(FaCheckSquare)`
   cursor: pointer;
   padding: 0 7px;
   font-size: 45px;
-
   &:hover {
     color: green;
-  }
+  } // Чычканды алып барганда жашыл болот
 `;
